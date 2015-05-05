@@ -6,12 +6,12 @@ package wang.jack.update.library;
  */
 public class UpdateInfo {
 
-    String appName;
-    String appDescription;
-    String packageName;
-    int versionCode;
-    String versionName;
-    String apkUrl;
+   public String appName;
+   public String appDescription;
+   public String packageName;
+   public int versionCode;
+   public String versionName;
+   public String apkUrl;
 
     private UpdateParam updateParam;
 
