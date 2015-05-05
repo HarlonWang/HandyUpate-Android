@@ -65,3 +65,15 @@ you can implements it with yourself json.
 ## Tips 
 
 - if version was downloaded ,should be not download again ,this will be solve future ,of course ,welcome send PR if you can help this.
+
+## Thanks
+- [android-autoupdater](https://github.com/SnowdreamFramework/android-autoupdater)
+- [ion](https://github.com/koush/ion)
+
+##Contact me
+
+ if you have a better idea on this project or way, please let me know, thanks:)
+
+[Email](mailto:81813780@qq.com)
+
+[Weibo](http://weibo.com/601265161)
