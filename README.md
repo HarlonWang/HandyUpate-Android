@@ -5,18 +5,26 @@ A simple version update for android app.
 
 At first :
 
+Add dependencies in build.gradle.
+
+```groovy
+	dependencies {
+	   compile 'wang.jack.update.library:library:1.0'
+	}
+```
+
 default json return should be like
 
-{
-    "updateInfo": {
-        "appName": "name",
-        "appDescription": "description",
-        "packageName": "com....",
-        "versionCode": 9,
-        "versionName": "1.08",
-        "apkUrl": "http://..."
+    {
+        "updateInfo": {
+            "appName": "name",
+            "appDescription": "description",
+            "packageName": "com....",
+            "versionCode": 9,
+            "versionName": "1.08",
+            "apkUrl": "http://..."
+            }
     }
-}
 
 An simple example use:
 
