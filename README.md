@@ -13,7 +13,17 @@ Add dependencies in build.gradle.
 	}
 ```
 
-default json return should be like
+- An simple example use:
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        HandyUpdate.update(this,url);
+    }  
+
+- default json return should be like
 
     {
         "updateInfo": {
@@ -25,16 +35,23 @@ default json return should be like
             "apkUrl": "http://..."
             }
     }
-
-An simple example use:
+    
+ or you can implements it with yourself json.
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        HandyUpdate.update(this,url);
-    }  
+        HandyUpdate.setCustomParseListener(new HandyUpdate.UpdateParseListener() {
+            @Override
+            public UpdateInfo getUpdateInfo(String yourselfJson) {
+                return null;
+            }
+        });
+        HandyUpdate.update(this, url);
+    }
+
     
 ## Configuring
 
@@ -52,23 +69,6 @@ An simple example use:
         HandyUpdate.update(this, url, updateParam);
     }
 
-## Custom Parse
-
-you can implements it with yourself json.
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-
-        HandyUpdate.setCustomParseListener(new HandyUpdate.UpdateParseListener() {
-            @Override
-            public UpdateInfo getUpdateInfo(String yourselfJson) {
-                return null;
-            }
-        });
-        HandyUpdate.update(this, url);
-    }
     
 ## Tips 
 
