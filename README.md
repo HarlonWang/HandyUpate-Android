@@ -13,7 +13,7 @@ Add dependencies in build.gradle.
 	}
 ```
 
-- An simple example use:
+An simple example use:
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,7 +23,7 @@ Add dependencies in build.gradle.
         HandyUpdate.update(this,url);
     }  
 
-- default json return should be like
+default json return should be like
 
     {
         "updateInfo": {
@@ -35,6 +35,7 @@ Add dependencies in build.gradle.
             "apkUrl": "http://..."
             }
     }
+    
     
  or you can implements it with yourself json.
 
