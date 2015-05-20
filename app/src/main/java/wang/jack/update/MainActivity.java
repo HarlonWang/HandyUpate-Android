@@ -5,6 +5,11 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import wang.jack.update.library.HandyUpdate;
+import wang.jack.update.library.UpdateInfo;
 
 
 public class MainActivity extends ActionBarActivity {
@@ -14,6 +19,25 @@ public class MainActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        HandyUpdate.setCustomParseListener(new HandyUpdate.UpdateParseListener() {
+            @Override
+            public UpdateInfo getUpdateInfo(String result) {
+                UpdateInfo updateInfo=new UpdateInfo();
+                try {
+                    JSONObject jsonObject=new JSONObject(result);
+                    updateInfo.appName=jsonObject.optString("appName");
+                    updateInfo.appDescription=jsonObject.optString("appDescription");
+                    updateInfo.packageName=jsonObject.optString("packageName");
+                    updateInfo.versionCode=jsonObject.optInt("versionCode");
+                    updateInfo.versionName=jsonObject.optString("versionName");
+                    updateInfo.apkUrl=jsonObject.optString("apkUrl");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                return updateInfo;
+            }
+        });
     }
 
     @Override

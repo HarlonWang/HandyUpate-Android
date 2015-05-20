@@ -47,7 +47,13 @@ default json return should be like
         HandyUpdate.setCustomParseListener(new HandyUpdate.UpdateParseListener() {
             @Override
             public UpdateInfo getUpdateInfo(String yourselfJson) {
-                return null;
+                //like this
+                UpdateInfo updateInfo=new UpdateInfo();
+                JSONObject jsonObject=new JSONObject(result);
+                updateInfo.appName=jsonObject.optString("appName");
+                ....
+                updateInfo.apkUrl=jsonObject.optString("apkUrl");
+                return updateInfo;
             }
         });
         HandyUpdate.update(this, url);
