@@ -49,7 +49,7 @@ default json return should be like
             public UpdateInfo getUpdateInfo(String yourselfJson) {
                 //like this
                 UpdateInfo updateInfo=new UpdateInfo();
-                JSONObject jsonObject=new JSONObject(result);
+                JSONObject jsonObject=new JSONObject(yourselfJson);
                 updateInfo.appName=jsonObject.optString("appName");
                 ....
                 updateInfo.apkUrl=jsonObject.optString("apkUrl");
