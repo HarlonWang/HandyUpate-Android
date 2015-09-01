@@ -48,19 +48,25 @@ public class DownLoadService extends Service{
     void downloadApp(String filePath,String downloadUrl){
         Ion.with(this)
                 .load(downloadUrl)
-                .progress((downloaded, total) -> {
-                    final int percent = (int)((float)downloaded / total * 100f);
-                    Log.d(TAG, "percent=" + percent);
-                    updateUIProgress(percent);
+                .progress(new ProgressCallback() {
+                    @Override
+                    public void onProgress(long downloaded, long total) {
+                        final int percent = (int) ((float) downloaded / total * 100f);
+                        Log.d(TAG, "percent=" + percent);
+                        DownLoadService.this.updateUIProgress(percent);
+                    }
                 })
                 .write(new File(filePath))
-                .setCallback((e, result) -> {
-                    if (e!=null){
-                        stopSelf();
-                        return;
+                .setCallback(new FutureCallback<File>() {
+                    @Override
+                    public void onCompleted(Exception e, File result) {
+                        if (e != null) {
+                            DownLoadService.this.stopSelf();
+                            return;
+                        }
+                        HandyUpdate.install(DownLoadService.this, result.getPath());
+                        DownLoadService.this.stopSelf();
                     }
-                    HandyUpdate.install(DownLoadService.this,result.getPath());
-                    stopSelf();
                 });
     }
 

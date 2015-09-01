@@ -96,54 +96,60 @@ public class HandyUpdate {
         Ion.with(mContext)
                 .load(mCheckUrl)
                 .asString()
-                .setCallback((e, result) -> {
-                    UpdateListener updateListener=mUpdateParam.updateListener;
-                    if (e != null) {
-                        updateListener.onUpdate(STATUS_ERROR, null);
-                        return;
-                    }
-                    if (sUpdateParseCallback==null){
-                        //default json data return should be
-                        // {"updateInfo":{"appName":"name","appDescription":"description","packageName":"com....","versionCode":9,"versionName":"1.08","apkUrl":"http://..."}}
-                        UpdateParseListener defaultParseListener= result1 -> {
-                            try {
-                                JSONObject jsonObject=new JSONObject(result1);
-                                JSONObject updateInfoJson=jsonObject.optJSONObject("updateInfo");
-                                UpdateInfo updateInfo=new UpdateInfo();
-                                updateInfo.appName=updateInfoJson.optString("appName");
-                                updateInfo.appDescription=updateInfoJson.optString("appDescription");
-                                updateInfo.packageName=updateInfoJson.optString("packageName");
-                                updateInfo.versionCode=updateInfoJson.optInt("versionCode");
-                                updateInfo.versionName=updateInfoJson.optString("versionName");
-                                updateInfo.apkUrl=updateInfoJson.optString("apkUrl");
-                                return updateInfo;
-                            } catch (JSONException e1) {
-                                e1.printStackTrace();
-                            }catch (NullPointerException n){
-                                n.printStackTrace();
-                            }
-                            return null;
-                        };
-                        sUpdateParseCallback=defaultParseListener;
-                    }
-                    UpdateInfo updateInfo=sUpdateParseCallback.getUpdateInfo(result);
-                    if (updateInfo==null){
-                        updateListener.onUpdate(STATUS_ERROR,null);
-                        return;
-                    }
-                    UpdateInfo appInfo = getAppInfo(mContext);
-                    if (mUpdateParam.isCheckPackage()) {
-                        if (!appInfo.packageName.equals(updateInfo.packageName)) {
+                .setCallback(new FutureCallback<String>() {
+                    @Override
+                    public void onCompleted(Exception e, String result) {
+                        UpdateListener updateListener = mUpdateParam.updateListener;
+                        if (e != null) {
                             updateListener.onUpdate(STATUS_ERROR, null);
                             return;
                         }
+                        if (sUpdateParseCallback == null) {
+                            //default json data return should be
+                            // {"updateInfo":{"appName":"name","appDescription":"description","packageName":"com....","versionCode":9,"versionName":"1.08","apkUrl":"http://..."}}
+                            UpdateParseListener defaultParseListener = new UpdateParseListener() {
+                                @Override
+                                public UpdateInfo getUpdateInfo(String result1) {
+                                    try {
+                                        JSONObject jsonObject = new JSONObject(result1);
+                                        JSONObject updateInfoJson = jsonObject.optJSONObject("updateInfo");
+                                        UpdateInfo updateInfo = new UpdateInfo();
+                                        updateInfo.appName = updateInfoJson.optString("appName");
+                                        updateInfo.appDescription = updateInfoJson.optString("appDescription");
+                                        updateInfo.packageName = updateInfoJson.optString("packageName");
+                                        updateInfo.versionCode = updateInfoJson.optInt("versionCode");
+                                        updateInfo.versionName = updateInfoJson.optString("versionName");
+                                        updateInfo.apkUrl = updateInfoJson.optString("apkUrl");
+                                        return updateInfo;
+                                    } catch (JSONException e1) {
+                                        e1.printStackTrace();
+                                    } catch (NullPointerException n) {
+                                        n.printStackTrace();
+                                    }
+                                    return null;
+                                }
+                            };
+                            sUpdateParseCallback = defaultParseListener;
+                        }
+                        UpdateInfo updateInfo = sUpdateParseCallback.getUpdateInfo(result);
+                        if (updateInfo == null) {
+                            updateListener.onUpdate(STATUS_ERROR, null);
+                            return;
+                        }
+                        UpdateInfo appInfo = getAppInfo(mContext);
+                        if (mUpdateParam.isCheckPackage()) {
+                            if (!appInfo.packageName.equals(updateInfo.packageName)) {
+                                updateListener.onUpdate(STATUS_ERROR, null);
+                                return;
+                            }
+                        }
+                        updateInfo.setUpdateParam(mUpdateParam);
+                        if (updateInfo.versionCode <= appInfo.versionCode) {
+                            mUpdateParam.updateListener.onUpdate(STATUS_LATEST, updateInfo);
+                            return;
+                        }
+                        mUpdateParam.updateListener.onUpdate(STATUS_UPDATE, updateInfo);
                     }
-                    updateInfo.setUpdateParam(mUpdateParam);
-                    if (updateInfo.versionCode <= appInfo.versionCode) {
-                        mUpdateParam.updateListener.onUpdate(STATUS_LATEST, updateInfo);
-                        return;
-                    }
-                    mUpdateParam.updateListener.onUpdate(STATUS_UPDATE, updateInfo);
                 });
     }
 
@@ -178,16 +184,22 @@ public class HandyUpdate {
                     new AlertDialog.Builder(ctx)
                             .setTitle(ctx.getString(R.string.update_title))
                             .setMessage(message)
-                            .setPositiveButton(ctx.getString(R.string.yes), (dialog, which) -> {
-                                if (updateInfo.getUpdateParam().backgroundService){
-                                    DownLoadManager.startBackground(ctx,updateInfo);
-                                }else {
-                                    DownLoadManager.startForeground(ctx,updateInfo);
+                            .setPositiveButton(ctx.getString(R.string.yes), new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    if (updateInfo.getUpdateParam().backgroundService) {
+                                        DownLoadManager.startBackground(ctx, updateInfo);
+                                    } else {
+                                        DownLoadManager.startForeground(ctx, updateInfo);
+                                    }
+
                                 }
+                            }).setNegativeButton(ctx.getString(R.string.cancel), new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
 
-                            }).setNegativeButton(ctx.getString(R.string.cancel), (dialog, which) -> {
-
-                            }).show();
+                        }
+                    }).show();
                     break;
             }
         }
@@ -206,12 +218,15 @@ public class HandyUpdate {
             Ion.with(context).load(updateInfo.apkUrl)
                     .progressDialog(progressDialog)
                     .write(apkFile)
-                    .setCallback((e, result) -> {
-                        progressDialog.cancel();
-                        if (e!=null){
-                            return;
+                    .setCallback(new FutureCallback<File>() {
+                        @Override
+                        public void onCompleted(Exception e, File result) {
+                            progressDialog.cancel();
+                            if (e != null) {
+                                return;
+                            }
+                            install(context, result.getPath());
                         }
-                        install(context, result.getPath());
                     });
         }
 
